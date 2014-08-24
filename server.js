@@ -109,10 +109,12 @@ app.get('/api/photos', function(request, response) {
 app.post('/api/photos', function(req, res) {
   outCorsHeader(req, res);
     var insToDb = req.body;
+    console.log(req);
     dbGeo.insert(insToDb, {}, function(err, body) {
       if (!err)
         {}
     });
+	res.send('{"status": "Insert done"}');
 });
 
 
