@@ -2,9 +2,6 @@
 
 // Modules locaux
 var geojson = require('./lib/geojson.js');
-var boncitoyen = require('./lib/boncitoyen.js');
-var realtime = require('./lib/realtime.js');
-var authentication = require('./lib/authentication.js');
 
 var application_root = __dirname,
   express = require('express'); //Web framework
