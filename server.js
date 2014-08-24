@@ -108,17 +108,10 @@ app.get('/api/photos', function(request, response) {
  */
 app.post('/api/photos', function(req, res) {
   outCorsHeader(req, res);
-  if (boncitoyen.validerStructureJsonBonCitoyen(req.body)) {
     var insToDb = req.body;
-    insToDb.status = 1; // 0 Déclaré, 1 En Cours, 2 Résolu !
-
-    boncitoyen_db.insert(insToDb, {}, function(err, body) {
+    dbGeo.insert(insToDb, {}, function(err, body) {
       if (!err)
-      //  console.log("insert done into couchdb !!!");
-        realtime.sendResponseToClient(res, "{\"status\": \"Insert done\"}", 'boncitoyen', 'insert');
     });
-  } else
-    res.send("{\"status\": \"Invalid object\"}");
 });
 
 
