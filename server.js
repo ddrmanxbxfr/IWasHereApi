@@ -111,6 +111,7 @@ app.post('/api/photos', function(req, res) {
     var insToDb = req.body;
     dbGeo.insert(insToDb, {}, function(err, body) {
       if (!err)
+        {}
     });
 });
 
