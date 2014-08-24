@@ -58,21 +58,20 @@ function arrondirWpy(roundloc, docToWorkOn) {
 }
 
 //Router
-//Get a list of all geojson keys
 /**
- * @api {get} /api/geojson Liste des sources de données GeoJson
- * @apiName GetGeoJson
- * @apiGroup GeoJson
+ * @api {get} /api/photos Liste des sources ou on a des photos
+ * @apiName GetPhotos
+ * @apiGroup I Was Here
  *
- * @apiSuccess {String} name Clé du document GeoJson.
+ * @apiSuccess {String} name Nom des sources de données.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "name": "PARCOMETRE"
+ *       "name": "GooglePlus"
  *     }
  */
-app.get('/api/geojson', function(request, response) {
+app.get('/api/photos', function(request, response) {
   outCorsHeader(request, response);
 
   var totalKeys = []
@@ -88,15 +87,50 @@ app.get('/api/geojson', function(request, response) {
   })
 });
 
+
+
 /**
- * @api {get} /api/geojson/:id Obtenir le document GeoJson
- * @apiName GetGeoJsonDetail
- * @apiGroup GeoJson
+ * @api {post} /api/photos Insérer les métadonnées d'une photo.
+ * @apiName PostPhotos
+ * @apiGroup I Was Here
  *
- * @apiParam {String} id Nom du jeu de donnée GeoJson.
+ * @apiSuccess {String} Status Confirmation d'écriture à la BD.
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {"status": "Insert done"}
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "status": "Invalid object"
+ *     }
+ */
+app.post('/api/photos', function(req, res) {
+  outCorsHeader(req, res);
+  if (boncitoyen.validerStructureJsonBonCitoyen(req.body)) {
+    var insToDb = req.body;
+    insToDb.status = 1; // 0 Déclaré, 1 En Cours, 2 Résolu !
+
+    boncitoyen_db.insert(insToDb, {}, function(err, body) {
+      if (!err)
+      //  console.log("insert done into couchdb !!!");
+        realtime.sendResponseToClient(res, "{\"status\": \"Insert done\"}", 'boncitoyen', 'insert');
+    });
+  } else
+    res.send("{\"status\": \"Invalid object\"}");
+});
+
+
+/**
+ * @api {get} /api/photos/:id Obtenir le document
+ * @apiName GetPhotosDetail
+ * @apiGroup I Was Here
+ *
+ * @apiParam {String} id Nom du jeu de donnée.
  * @apiParam {Integer} [?roundloc=] Arrondir les waypoints au nombre spécifié.
  *
- * @apiSuccess {GeoJson} documentFeatures Document formatté avec la liste de waypoints.
+ * @apiSuccess {GeoJson} documentFeatures Document formatté avec la liste de url.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -116,23 +150,14 @@ app.get('/api/geojson', function(request, response) {
  *         ]
  *       },
  *       "properties": {
- *         "ID": "300070",
- *         "COTE_RUE": "Ouest",
- *         "LECT_MET": "208",
- *         "SEGMENT_RU": "105",
- *         "DIRECTION": null,
- *         "NOM_TOPOG": "Avenue Louis-St-Laurent",
- *         "NO_BORNE": "2371",
- *         "NO_CIVIQ": null,
- *         "ID_VOIE_PUB": 105663,
- *         "GEOM": "POINT (249714.049 5185174.046)"
+ *         "ID": "300070"
  *       }
  *     }
  * 	]
  * }
  *
  */
-app.get('/api/geojson/:id', function(request, response) {
+app.get('/api/photos/:id', function(request, response) {
   outCorsHeader(request, response);
 
   dbGeo.view('nodejs', 'keys', {
@@ -156,13 +181,12 @@ app.get('/api/geojson/:id', function(request, response) {
 });
 
 
-//Get a single geojson tag by id, radius, lat, lng
 /**
- * @api {get} /api/geojson/:id/:radius/:lat/:lng Obtenir le document GeoJson selon le périmètre
- * @apiName GetGeoJsonDetailRadius
- * @apiGroup GeoJson
+ * @api {get} /api/photos/:id/:radius/:lat/:lng Obtenir les document selon le périmètre
+ * @apiName GetPhotosDetailRadius
+ * @apiGroup I Was Here
  *
- * @apiParam {String} id Nom du jeu de donnée GeoJson.
+ * @apiParam {String} id Nom du jeu de donnée.
  * @apiParam {Number} radius Périmètre des points désirés.
  * @apiParam {Number} lat Point de latitude source.
  * @apiParam {Number} lng Point de longitude source.
@@ -188,23 +212,14 @@ app.get('/api/geojson/:id', function(request, response) {
  *         ]
  *       },
  *       "properties": {
- *         "ID": "300070",
- *         "COTE_RUE": "Ouest",
- *         "LECT_MET": "208",
- *         "SEGMENT_RU": "105",
- *         "DIRECTION": null,
- *         "NOM_TOPOG": "Avenue Louis-St-Laurent",
- *         "NO_BORNE": "2371",
- *         "NO_CIVIQ": null,
- *         "ID_VOIE_PUB": 105663,
- *         "GEOM": "POINT (249714.049 5185174.046)"
+ *         "ID": "300070"
  *       }
  *     }
  * 	]
  * }
  *
  */
-app.get('/api/geojson/:id/:radius/:lat/:lng', function(request, response) {
+app.get('/api/photos/:id/:radius/:lat/:lng', function(request, response) {
   outCorsHeader(request, response);
 
   dbGeo.view('nodejs', 'keys', {
@@ -232,13 +247,13 @@ app.get('/api/geojson/:id/:radius/:lat/:lng', function(request, response) {
 
 
 /**
- * @api {get} /api/geojson/:id/:latSW/:lngSW/:latNE/:lngNE Obtenir le document GeoJson selon les bounds fournis.
- * @apiName GetGeoJsonDetailBounds
- * @apiGroup GeoJson
+ * @api {get} /api/photos/:id/:latSW/:lngSW/:latNE/:lngNE Obtenir les document selon les bounds fournis.
+ * @apiName GetPhotosDetailBounds
+ * @apiGroup I Was Here
  *
- * @apiDescription Le document GeoJson à été calculés à partir des bounds à condition que le jeu de données soit fournit en format points.
+ * @apiDescription Les document à été calculés à partir des bounds à condition que le jeu de données soit fournit en format points.
  *
- * @apiParam {String} id Nom du jeu de donnée GeoJson.
+ * @apiParam {String} id Nom du jeu de donnée.
  * @apiParam {Number} latSW Point de latitude South West.
  * @apiParam {Number} lngSW Point de longitude South West.
  * @apiParam {Number} latNE Point de latitude Nord East.
@@ -265,23 +280,14 @@ app.get('/api/geojson/:id/:radius/:lat/:lng', function(request, response) {
  *         ]
  *       },
  *       "properties": {
- *         "ID": "300070",
- *         "COTE_RUE": "Ouest",
- *         "LECT_MET": "208",
- *         "SEGMENT_RU": "105",
- *         "DIRECTION": null,
- *         "NOM_TOPOG": "Avenue Louis-St-Laurent",
- *         "NO_BORNE": "2371",
- *         "NO_CIVIQ": null,
- *         "ID_VOIE_PUB": 105663,
- *         "GEOM": "POINT (249714.049 5185174.046)"
+ *         "ID": "300070"
  *       }
  *     }
  * 	]
  * }
  *
  */
-app.get('/api/geojson/:id/:latSW/:lngSW/:latNE/:lngNE', function(request, response) {
+app.get('/api/photos/:id/:latSW/:lngSW/:latNE/:lngNE', function(request, response) {
   outCorsHeader(request, response);
 
   dbGeo.view('datasets', request.params.id, {
