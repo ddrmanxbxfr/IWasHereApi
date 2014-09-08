@@ -7,6 +7,7 @@ var application_root = __dirname,
   express = require('express'); //Web framework
 
 var nano = require('nano')('http://localhost:5984');
+var iwashere = require('./lib/iwashere.js');
 var dbGeo_name = "apes_iwashere";
 var dbGeo = nano.use(dbGeo_name)
 
@@ -137,7 +138,7 @@ app.get('/api/iwashere/:radius/:lat/:lng', function(request, response) {
       documentToSend = "We worked on it at least";
       if (geojson.evaluerSiTypePoint(documentToWorkOn))
       // "this is really a point document"
-        documentToSend = arrondirWpy(request.query.roundloc, geojson.generateGeoJsonDocRadius(documentToWorkOn, request.params.radius, request.params.lat, request.params.lng));
+        documentToSend = arrondirWpy(request.query.roundloc, iwashere.ajouterProps(geojson.generateGeoJsonDocRadius(documentToWorkOn, request.params.radius, request.params.lat, request.params.lng)));
       else
         documentToSend = "This is not a point document. Can't do anything";
     } else {
