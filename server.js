@@ -91,70 +91,10 @@ app.post('/api/iwashere', function(req, res) {
 
 
 /**
- * @api {get} /api/iwashere/:id Obtenir le document
- * @apiName GetPhotosDetail
+ * @api {get} /api/iwashere/:radius/:lat/:lng Obtenir les document selon le périmètre
+ * @apiName GetMarksRadius
  * @apiGroup I Was Here
  *
- * @apiParam {String} id Nom du jeu de donnée.
- * @apiParam {Integer} [?roundloc=] Arrondir les waypoints au nombre spécifié.
- *
- * @apiSuccess {GeoJson} documentFeatures Document formatté avec la liste de url.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- * {
- *   "_id": "b6191e110019328d4c8b2bedff000a7a",
- *   "_rev": "1-aabffa12807d084ccbcd63f7c51b0533",
- *   "name": "PARCOMETRE",
- *   "type": "FeatureCollection",
- *   "features": [
- *     {
- *       "type": "Feature",
- *       "geometry": {
- *         "type": "Point",
- *         "coordinates": [
- *           -71.2217178685479,
- *           46.803835920695
- *         ]
- *       },
- *       "properties": {
- *         "ID": "300070"
- *       }
- *     }
- * 	]
- * }
- *
- */
-app.get('/api/iwashere/:id', function(request, response) {
-  outCorsHeader(request, response);
-
-  dbGeo.view('nodejs', 'keys', {
-    include_docs: true,
-    reduce: false,
-    key: request.params.id
-  }, function(err, doc) {
-    var documentToSend;
-    if (!err) {
-
-      var realGeoJsonDoc = geojson.preparerDocumentFeaturesFromCouchView(doc, request.params.id);
-
-      documentToSend = arrondirWpy(request.query.roundloc, realGeoJsonDoc);
-
-    } else {
-      documentToSend = 'could not find id!!';
-    }
-
-    response.send(documentToSend);
-  });
-});
-
-
-/**
- * @api {get} /api/iwashere/:id/:radius/:lat/:lng Obtenir les document selon le périmètre
- * @apiName GetPhotosDetailRadius
- * @apiGroup I Was Here
- *
- * @apiParam {String} id Nom du jeu de donnée.
  * @apiParam {Number} radius Périmètre des points désirés.
  * @apiParam {Number} lat Point de latitude source.
  * @apiParam {Number} lng Point de longitude source.
@@ -187,18 +127,16 @@ app.get('/api/iwashere/:id', function(request, response) {
  * }
  *
  */
-app.get('/api/iwashere/:id/:radius/:lat/:lng', function(request, response) {
+app.get('/api/iwashere/:radius/:lat/:lng', function(request, response) {
   outCorsHeader(request, response);
 
-  dbGeo.view('nodejs', 'keys', {
-        include_docs: true,
-        reduce: false,
-        key: request.params.id
-      }, function(err, doc) {
+
+
+  dbGeo.list (function(err, doc) {
         var documentToSend;
         if (!err) {
 
-      var documentToWorkOn = geojson.preparerDocumentFeaturesFromCouchView(doc, request.params.id);
+      var documentToWorkOn = geojson.preparerDocumentFeaturesFromCouchView(doc);
       documentToSend = "We worked on it at least";
       if (geojson.evaluerSiTypePoint(documentToWorkOn))
       // "this is really a point document"
