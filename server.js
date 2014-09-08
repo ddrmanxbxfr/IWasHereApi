@@ -59,37 +59,6 @@ function arrondirWpy(roundloc, docToWorkOn) {
 
 //Router
 /**
- * @api {get} /api/iwashere Liste des sources ou on a des photos
- * @apiName GetPhotos
- * @apiGroup I Was Here
- *
- * @apiSuccess {String} name Nom des sources de données.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "name": "GooglePlus"
- *     }
- */
-app.get('/api/iwashere', function(request, response) {
-  outCorsHeader(request, response);
-
-  var totalKeys = []
-  dbGeo.view("nodejs", "keys", {
-    group_level: 1
-  }, function(error, body, headers) {
-    if (!error) {
-      body.rows.forEach(function(doc) {
-        totalKeys.push(doc.key);
-      })
-    };
-    response.send(totalKeys);
-  })
-});
-
-
-
-/**
  * @api {post} /api/iwashere Insérer les métadonnées.
  * @apiName PostGeoInfos
  * @apiGroup I Was Here
