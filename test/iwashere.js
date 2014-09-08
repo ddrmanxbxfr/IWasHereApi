@@ -47,7 +47,7 @@ describe('Verifier les contributions des utilisateurs', function () {
         itShouldHave1UserContribution.properties.nbSansContributions.should.be.exactly(1).and.be.a.Number;
     });
 
-        it('should have 1 features with textProp', function () {
+    it('should have 1 features with textProp', function () {
         itShouldHaveOneFeatures.name.should.be.exactly("ParkingAPI").and.be.a.String;
         itShouldHaveOneFeatures.type.should.be.exactly("FeaturesCollection").and.be.a.String;
         itShouldHaveOneFeatures.features.length.should.be.exactly(1).and.be.a.Number;
