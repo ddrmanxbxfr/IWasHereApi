@@ -59,7 +59,7 @@ function arrondirWpy(roundloc, docToWorkOn) {
 
 //Router
 /**
- * @api {get} /api/photos Liste des sources ou on a des photos
+ * @api {get} /api/iwashere Liste des sources ou on a des photos
  * @apiName GetPhotos
  * @apiGroup I Was Here
  *
@@ -71,7 +71,7 @@ function arrondirWpy(roundloc, docToWorkOn) {
  *       "name": "GooglePlus"
  *     }
  */
-app.get('/api/photos', function(request, response) {
+app.get('/api/iwashere', function(request, response) {
   outCorsHeader(request, response);
 
   var totalKeys = []
@@ -90,7 +90,7 @@ app.get('/api/photos', function(request, response) {
 
 
 /**
- * @api {post} /api/photos Insérer les métadonnées d'une photo.
+ * @api {post} /api/iwashere Insérer les métadonnées d'une photo.
  * @apiName PostPhotos
  * @apiGroup I Was Here
  *
@@ -106,7 +106,7 @@ app.get('/api/photos', function(request, response) {
  *       "status": "Invalid object"
  *     }
  */
-app.post('/api/photos', function(req, res) {
+app.post('/api/iwashere', function(req, res) {
   outCorsHeader(req, res);
     var insToDb = req.body;
     //console.log(req.body);
@@ -121,7 +121,7 @@ app.post('/api/photos', function(req, res) {
 
 
 /**
- * @api {get} /api/photos/:id Obtenir le document
+ * @api {get} /api/iwashere/:id Obtenir le document
  * @apiName GetPhotosDetail
  * @apiGroup I Was Here
  *
@@ -155,7 +155,7 @@ app.post('/api/photos', function(req, res) {
  * }
  *
  */
-app.get('/api/photos/:id', function(request, response) {
+app.get('/api/iwashere/:id', function(request, response) {
   outCorsHeader(request, response);
 
   dbGeo.view('nodejs', 'keys', {
@@ -180,7 +180,7 @@ app.get('/api/photos/:id', function(request, response) {
 
 
 /**
- * @api {get} /api/photos/:id/:radius/:lat/:lng Obtenir les document selon le périmètre
+ * @api {get} /api/iwashere/:id/:radius/:lat/:lng Obtenir les document selon le périmètre
  * @apiName GetPhotosDetailRadius
  * @apiGroup I Was Here
  *
@@ -217,7 +217,7 @@ app.get('/api/photos/:id', function(request, response) {
  * }
  *
  */
-app.get('/api/photos/:id/:radius/:lat/:lng', function(request, response) {
+app.get('/api/iwashere/:id/:radius/:lat/:lng', function(request, response) {
   outCorsHeader(request, response);
 
   dbGeo.view('nodejs', 'keys', {
@@ -245,7 +245,7 @@ app.get('/api/photos/:id/:radius/:lat/:lng', function(request, response) {
 
 
 /**
- * @api {get} /api/photos/:id/:latSW/:lngSW/:latNE/:lngNE Obtenir les document selon les bounds fournis.
+ * @api {get} /api/iwashere/:id/:latSW/:lngSW/:latNE/:lngNE Obtenir les document selon les bounds fournis.
  * @apiName GetPhotosDetailBounds
  * @apiGroup I Was Here
  *
@@ -285,7 +285,7 @@ app.get('/api/photos/:id/:radius/:lat/:lng', function(request, response) {
  * }
  *
  */
-app.get('/api/photos/:id/:latSW/:lngSW/:latNE/:lngNE', function(request, response) {
+app.get('/api/iwashere/:id/:latSW/:lngSW/:latNE/:lngNE', function(request, response) {
   outCorsHeader(request, response);
 
   dbGeo.view('datasets', request.params.id, {
