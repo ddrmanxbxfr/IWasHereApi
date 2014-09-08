@@ -109,7 +109,7 @@ app.get('/api/iwashere', function(request, response) {
 app.post('/api/iwashere', function(req, res) {
   outCorsHeader(req, res);
     var insToDb = req.body;
-    console.log(req.body);
+    //console.log(req.body);
     dbGeo.insert(insToDb, {}, function(err, body) {
       if (!err)
         {
