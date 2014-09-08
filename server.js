@@ -150,7 +150,7 @@ app.get('/api/iwashere/:radius/:lat/:lng', function(request, response) {
 });
 
 //Start server
-var port = 4711;
+var port = 4712;
 app.listen(port, function() {
   console.log('Express server listening on port %d in %s mode', port, app.settings.env);
 });
