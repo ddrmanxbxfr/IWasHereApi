@@ -129,10 +129,7 @@ app.post('/api/iwashere', function(req, res) {
  */
 app.get('/api/iwashere/:radius/:lat/:lng', function(request, response) {
   outCorsHeader(request, response);
-
-
-
-  dbGeo.list (function(err, doc) {
+  dbGeo.list ({include_docs: true},function(err, doc) {
         var documentToSend;
         if (!err) {
 
