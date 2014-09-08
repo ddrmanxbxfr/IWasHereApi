@@ -90,8 +90,8 @@ app.get('/api/iwashere', function(request, response) {
 
 
 /**
- * @api {post} /api/iwashere Insérer les métadonnées d'une photo.
- * @apiName PostPhotos
+ * @api {post} /api/iwashere Insérer les métadonnées.
+ * @apiName PostGeoInfos
  * @apiGroup I Was Here
  *
  * @apiSuccess {String} Status Confirmation d'écriture à la BD.
