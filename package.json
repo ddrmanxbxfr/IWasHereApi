@@ -8,5 +8,9 @@
 	"faye": ">0.0.1",
   "jwt-simple": ">0.0.1",
   "crypto": ">0.0.1"
+    },
+    "devDependencies": {
+        "should": "^4.0.4",
+        "mocha": "^1.21.4"
     }
 }
