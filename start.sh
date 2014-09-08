@@ -1,3 +1,3 @@
 #!/bin/bash
-screen -dmS parking_api node runProduction.js
-echo "Done starting Parking API"
+screen -dmS iwashere_api node runProduction.js
+echo "Done starting IWasHere API"
