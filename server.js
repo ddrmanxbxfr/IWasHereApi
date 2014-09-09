@@ -150,7 +150,7 @@ app.post('/api/iwashere', function (req, res) {
             console.log("The file was saved!");
         }
     });*/
-    if (insToDb.properties.picture !== undefined || insToDb.properties.picture !== null) {
+    if (insToDb.properties.picture !== undefined && insToDb.properties.picture !== null) {
         var mongoId = savePictureToMongoDB(insToDb.properties.picture);
         delete insToDb.properties.picture;
         insToDb.properties.pictureid = mongoId;
