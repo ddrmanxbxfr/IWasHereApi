@@ -110,6 +110,7 @@ app.post('/api/iwashere', function (req, res) {
         // Insert to mongodb the picture !
         // NOTE : WE SAVE THE BASE64 Encoded picture NOT the DECODED ONE !!
         var fileId = new ObjectID();
+        var returnId = -1;
         var gridStore = new GridStore(dbPictures, fileId, "w", {
             root: 'fs',
             content_type: pictureToSave.split(",")[0]
@@ -128,12 +129,13 @@ app.post('/api/iwashere', function (req, res) {
 
                 function doneWithWrite() {
                     gridStore.close(function (err, result) {
-                        console.log(result._id);
+                        returnId = result._id;
                         console.log("File has been written to GridFS");
                     });
                 }
             )
         });
+        return returnId;
     };
 
     outCorsHeader(req, res);
@@ -151,8 +153,9 @@ app.post('/api/iwashere', function (req, res) {
         }
     });*/
     if (insToDb.properties.picture !== undefined || insToDb.properties.picture !== null) {
-        savePictureToMongoDB(insToDb.properties.picture);
+        var mongoId = savePictureToMongoDB(insToDb.properties.picture);
         delete insToDb.properties.picture;
+        insToDb.properties.pictureid = mongoId;
     }
 
     dbGeo.insert(insToDb, {}, function (err, body) {
