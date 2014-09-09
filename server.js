@@ -2,9 +2,9 @@
 
 // Modules locaux
 var geojson = require('./lib/geojson.js');
-
+var fs = require('fs');
 var application_root = __dirname,
-  express = require('express'); //Web framework
+    express = require('express'); //Web framework
 
 var nano = require('nano')('http://localhost:5984');
 var iwashere = require('./lib/iwashere.js');
@@ -14,48 +14,59 @@ var dbGeo = nano.use(dbGeo_name)
 
 // Parametres BD
 var per_page = 10,
-  params = {
-    include_docs: true,
-    limit: per_page,
-    descending: true
-  };
+    params = {
+        include_docs: true,
+        limit: per_page,
+        descending: true
+    };
 
 
 //Create server
 var app = express();
 
 // Configure server
-app.configure(function() {
-  //parses request body and populates request.body
-  app.use(express.bodyParser());
+app.configure(function () {
+    //parses request body and populates request.body
 
-  //checks request.body for HTTP method overrides
-  app.use(express.methodOverride());
+    app.use(function (req, res, next) {
+        req.rawBody = '';
+        req.setEncoding('utf8');
 
-  //perform route lookup based on url and HTTP method
-  app.use(app.router);
+        req.on('data', function (chunk) {
+            req.rawBody += chunk;
+        });
 
-  //Show all errors in development
-  app.use(express.errorHandler({
-    dumpExceptions: true,
-    showStack: true
-  }));
+        next();
+    });
+    app.use(express.bodyParser());
+
+    //checks request.body for HTTP method overrides
+    app.use(express.methodOverride());
+
+    //perform route lookup based on url and HTTP method
+    app.use(app.router);
+
+    //Show all errors in development
+    app.use(express.errorHandler({
+        dumpExceptions: true,
+        showStack: true
+    }));
 });
 
 function outCorsHeader(request, response) {
-  response.header('Access-Control-Allow-Origin', request.headers.origin || "*");
-  response.header('Access-Control-Allow-Methods', 'GET,POST,PUT,HEAD,DELETE,OPTIONS');
-  response.header('Access-Control-Allow-Headers', 'content-Type,x-requested-with');
+    response.header('Access-Control-Allow-Origin', request.headers.origin || "*");
+    response.header('Access-Control-Allow-Methods', 'GET,POST,PUT,HEAD,DELETE,OPTIONS');
+    response.header('Access-Control-Allow-Headers', 'content-Type,x-requested-with');
 }
 
 function arrondirWpy(roundloc, docToWorkOn) {
-  var documentResult;
-  if (roundloc != null) {
-    var numToGo = parseInt(roundloc);
-    documentResult = geojson.retirerWaypointTropProche(docToWorkOn, roundloc);
-  } else
-    documentResult = docToWorkOn;
-  return documentResult;
+    var documentResult;
+    if (roundloc != null) {
+        var numToGo = parseInt(roundloc);
+        documentResult = geojson.retirerWaypointTropProche(docToWorkOn, roundloc);
+    } else
+        documentResult = docToWorkOn;
+    return documentResult;
 }
 
 //Router
@@ -76,18 +87,34 @@ function arrondirWpy(roundloc, docToWorkOn) {
  *       "status": "Invalid object"
  *     }
  */
-app.post('/api/iwashere', function(req, res) {
-  outCorsHeader(req, res);
+app.post('/api/iwashere', function (req, res) {
+    outCorsHeader(req, res);
     var insToDb = req.body;
     //console.log(req.body);
-    dbGeo.insert(insToDb, {}, function(err, body) {
-      if (!err)
-        {
-		res.send('{"status": "Insert done"}');
-	} else {
-       	res.send('{"status": "Invalid object"}');
-    }
+    dbGeo.insert(insToDb, {}, function (err, body) {
+        if (!err) {
+            res.send('{"status": "Insert done"}');
+        } else {
+            res.send('{"status": "Invalid object"}');
+        }
     });
+});
+
+
+app.post('/api/iwashere/picture', function (req, res) {
+    outCorsHeader(req, res);
+    var pictureToParse = req.rawBody.split(",")[1];
+    var buf = new Buffer(pictureToParse, 'base64'); // Ta-da
+
+    fs.writeFile("/Users/ddrmanxbxfr/test.jpeg", buf, function (err) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("The file was saved!");
+        }
+    });
+
+    res.send('{"status": "Insert done"}');
 });
 
 
@@ -128,29 +155,31 @@ app.post('/api/iwashere', function(req, res) {
  * }
  *
  */
-app.get('/api/iwashere/:radius/:lat/:lng', function(request, response) {
-  outCorsHeader(request, response);
-  dbGeo.list ({include_docs: true},function(err, doc) {
+app.get('/api/iwashere/:radius/:lat/:lng', function (request, response) {
+    outCorsHeader(request, response);
+    dbGeo.list({
+        include_docs: true
+    }, function (err, doc) {
         var documentToSend;
         if (!err) {
 
-      var documentToWorkOn = geojson.preparerDocumentFeaturesFromCouchView(doc);
-      documentToSend = "We worked on it at least";
-      if (geojson.evaluerSiTypePoint(documentToWorkOn))
-      // "this is really a point document"
-        documentToSend = arrondirWpy(request.query.roundloc, iwashere.ajouterProps(geojson.generateGeoJsonDocRadius(documentToWorkOn, request.params.radius, request.params.lat, request.params.lng)));
-      else
-        documentToSend = "This is not a point document. Can't do anything";
-    } else {
-      documentToSend = 'could not find id!!';
-    }
+            var documentToWorkOn = geojson.preparerDocumentFeaturesFromCouchView(doc);
+            documentToSend = "We worked on it at least";
+            if (geojson.evaluerSiTypePoint(documentToWorkOn))
+            // "this is really a point document"
+                documentToSend = arrondirWpy(request.query.roundloc, iwashere.ajouterProps(geojson.generateGeoJsonDocRadius(documentToWorkOn, request.params.radius, request.params.lat, request.params.lng)));
+            else
+                documentToSend = "This is not a point document. Can't do anything";
+        } else {
+            documentToSend = 'could not find id!!';
+        }
 
-    response.send(documentToSend);
-  });
+        response.send(documentToSend);
+    });
 });
 
 //Start server
 var port = 4712;
-app.listen(port, function() {
-  console.log('Express server listening on port %d in %s mode', port, app.settings.env);
+app.listen(port, function () {
+    console.log('Express server listening on port %d in %s mode', port, app.settings.env);
 });
