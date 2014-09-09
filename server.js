@@ -110,7 +110,6 @@ app.post('/api/iwashere', function (req, res) {
         // Insert to mongodb the picture !
         // NOTE : WE SAVE THE BASE64 Encoded picture NOT the DECODED ONE !!
         var fileId = new ObjectID();
-        var returnId = -1;
         var gridStore = new GridStore(dbPictures, fileId, "w", {
             root: 'fs',
             content_type: pictureToSave.split(",")[0]
@@ -122,20 +121,20 @@ app.post('/api/iwashere', function (req, res) {
                 function writeData() {
                     var group = this.group();
                     var len = req.rawBody.length;
-                    for (var i = 0; i < l; i += 5000) {
+                    for (var i = 0; i < len; i += 5000) {
                         gridStore.write(pictureToSave.substring(i, i + 5000), group());
                     }
                 },
 
                 function doneWithWrite() {
                     gridStore.close(function (err, result) {
-                        returnId = result._id;
+                        console.log(fileId);
                         console.log("File has been written to GridFS");
                     });
                 }
             )
         });
-        return returnId;
+         return fileId;
     };
 
     outCorsHeader(req, res);
