@@ -119,7 +119,7 @@ app.post('/api/iwashere', function (req, res) {
 });
 
 
-app.post('/api/iwashere/picture', function (req, res) {
+app.post('/api/iwashere/picture/:lat/:lng', function (req, res) {
     outCorsHeader(req, res);
     //var pictureToParse = req.rawBody.split(",")[1];
     //var buf = new Buffer(pictureToParse, 'base64'); // Ta-da
@@ -135,9 +135,13 @@ app.post('/api/iwashere/picture', function (req, res) {
     // Insert to mongodb the picture !
     // NOTE : WE SAVE THE BASE64 Encoded picture NOT the DECODED ONE !!
         var fileId = new ObjectID();
-        var gridStore = new GridStore(dbPictures, fileId, "yoloswagpic", "w", {
+        var gridStore = new GridStore(dbPictures, fileId, "w", {
             root: 'fs',
-            content_type: req.rawBody.split(",")[0]
+            content_type: req.rawBody.split(",")[0],
+            metadata: {
+                lat: request.params.lat,
+                lng: request.params.lng
+            }
         });
         gridStore.chunkSize = 1024 * 256;
 
