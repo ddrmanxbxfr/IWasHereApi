@@ -11,6 +11,24 @@ var iwashere = require('./lib/iwashere.js');
 var dbGeo_name = "apes_iwashere";
 var dbGeo = nano.use(dbGeo_name)
 
+/* MongoDB Stuff for storing the pictures */
+var mongo = require('mongodb'),
+    Db = mongo.Db,
+    Grid = mongo.Grid,
+    ObjectID = mongo.ObjectID,
+    GridStore = mongo.GridStore,
+    Step = require('./lib/step.js');
+
+// Open connection to mongodb...
+var dbPictures;
+
+Db.connect("mongodb://localhost:27017/apes_iwashere", function (err, db) {
+        if (err) return console.dir(err);
+    dbPictures = db;
+    console.log('connected to mongo db !!! ');
+});
+
+
 
 // Parametres BD
 var per_page = 10,
@@ -103,17 +121,44 @@ app.post('/api/iwashere', function (req, res) {
 
 app.post('/api/iwashere/picture', function (req, res) {
     outCorsHeader(req, res);
-    var pictureToParse = req.rawBody.split(",")[1];
-    var buf = new Buffer(pictureToParse, 'base64'); // Ta-da
+    //var pictureToParse = req.rawBody.split(",")[1];
+    //var buf = new Buffer(pictureToParse, 'base64'); // Ta-da
 
-    fs.writeFile("/Users/ddrmanxbxfr/test.jpeg", buf, function (err) {
+    /*fs.writeFile("/Users/ddrmanxbxfr/test.jpeg", buf, function (err) {
         if (err) {
             console.log(err);
         } else {
             console.log("The file was saved!");
         }
-    });
+    });*/
 
+    // Insert to mongodb the picture !
+    // NOTE : WE SAVE THE BASE64 Encoded picture NOT the DECODED ONE !!
+        var fileId = new ObjectID();
+        var gridStore = new GridStore(dbPictures, fileId, "yoloswagpic", "w", {
+            root: 'fs',
+            content_type: req.rawBody.split(",")[0]
+        });
+        gridStore.chunkSize = 1024 * 256;
+
+        gridStore.open(function (err, gridStore) {
+            Step(
+                function writeData() {
+                    var group = this.group();
+                    var len = pictureToParse.length;
+                    for (var i = 0; i < l; i += 5000) {
+                        gridStore.write(pictureToParse.substring(i,i+5000), group());
+                    }
+                },
+
+                function doneWithWrite() {
+                    gridStore.close(function (err, result) {
+                        console.log("File has been written to GridFS");
+                    });
+                }
+            )
+        });
+        gridStore.close();
     res.send('{"status": "Insert done"}');
 });
 

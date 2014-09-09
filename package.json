@@ -1,16 +1,17 @@
 {
-    "name": "library-rest-api",
-    "version": "0.0.1",
-    "description": "A simple library REST api",
-    "dependencies": {
-        "express": "~3.1.0",
-	"nano": ">0.0.1",
-	"faye": ">0.0.1",
-  "jwt-simple": ">0.0.1",
-  "crypto": ">0.0.1"
-    },
-    "devDependencies": {
-        "should": "^4.0.4",
-        "mocha": "^1.21.4"
-    }
+  "name": "library-rest-api",
+  "version": "0.0.1",
+  "description": "A simple library REST api",
+  "dependencies": {
+    "crypto": ">0.0.1",
+    "express": "~3.1.0",
+    "faye": ">0.0.1",
+    "jwt-simple": ">0.0.1",
+    "mongodb": "^1.4.10",
+    "nano": ">0.0.1"
+  },
+  "devDependencies": {
+    "should": "^4.0.4",
+    "mocha": "^1.21.4"
+  }
 }
