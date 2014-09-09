@@ -23,7 +23,7 @@ var mongo = require('mongodb'),
 var dbPictures;
 
 Db.connect("mongodb://localhost:27017/apes_iwashere", function (err, db) {
-        if (err) return console.dir(err);
+    if (err) return console.dir(err);
     dbPictures = db;
     console.log('connected to mongo db !!! ');
 });
@@ -106,42 +106,13 @@ function arrondirWpy(roundloc, docToWorkOn) {
  *     }
  */
 app.post('/api/iwashere', function (req, res) {
-    outCorsHeader(req, res);
-    var insToDb = req.body;
-    //console.log(req.body);
-    dbGeo.insert(insToDb, {}, function (err, body) {
-        if (!err) {
-            res.send('{"status": "Insert done"}');
-        } else {
-            res.send('{"status": "Invalid object"}');
-        }
-    });
-});
-
-
-app.post('/api/iwashere/picture/:lat/:lng', function (req, res) {
-    outCorsHeader(req, res);
-    //var pictureToParse = req.rawBody.split(",")[1];
-    //var buf = new Buffer(pictureToParse, 'base64'); // Ta-da
-
-    /*fs.writeFile("/Users/ddrmanxbxfr/test.jpeg", buf, function (err) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log("The file was saved!");
-        }
-    });*/
-
-    // Insert to mongodb the picture !
-    // NOTE : WE SAVE THE BASE64 Encoded picture NOT the DECODED ONE !!
+    function savePictureToMongoDB(pictureToSave) {
+        // Insert to mongodb the picture !
+        // NOTE : WE SAVE THE BASE64 Encoded picture NOT the DECODED ONE !!
         var fileId = new ObjectID();
         var gridStore = new GridStore(dbPictures, fileId, "w", {
             root: 'fs',
-            content_type: req.rawBody.split(",")[0],
-            metadata: {
-                lat: request.params.lat,
-                lng: request.params.lng
-            }
+            content_type: pictureToSave.split(",")[0]
         });
         gridStore.chunkSize = 1024 * 256;
 
@@ -149,20 +120,48 @@ app.post('/api/iwashere/picture/:lat/:lng', function (req, res) {
             Step(
                 function writeData() {
                     var group = this.group();
-                    var len = pictureToParse.length;
+                    var len = req.rawBody.length;
                     for (var i = 0; i < l; i += 5000) {
-                        gridStore.write(pictureToParse.substring(i,i+5000), group());
+                        gridStore.write(pictureToSave.substring(i, i + 5000), group());
                     }
                 },
 
                 function doneWithWrite() {
                     gridStore.close(function (err, result) {
+                        console.log(result._id);
                         console.log("File has been written to GridFS");
                     });
                 }
             )
         });
-    res.send('{"status": "Insert done"}');
+    };
+
+    outCorsHeader(req, res);
+    var insToDb = req.body;
+    //console.log(req.body);
+
+    /*
+    var pictureToParse = insToDb.properties.picture.split(",")[1];
+    var buf = new Buffer(pictureToParse, 'base64'); // Ta-da
+    fs.writeFile("/Users/ddrmanxbxfr/test.jpeg", buf, function (err) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("The file was saved!");
+        }
+    });*/
+    if (insToDb.properties.picture !== undefined || insToDb.properties.picture !== null) {
+        savePictureToMongoDB(insToDb.properties.picture);
+        delete insToDb.properties.picture;
+    }
+
+    dbGeo.insert(insToDb, {}, function (err, body) {
+        if (!err) {
+            res.send('{"status": "Insert done"}');
+        } else {
+            res.send('{"status": "Invalid object"}');
+        }
+    });
 });
 
 
