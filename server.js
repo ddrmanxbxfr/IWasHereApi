@@ -134,14 +134,13 @@ app.post('/api/iwashere', function (req, res) {
                 }
             )
         });
-         return fileId;
+        return fileId;
     };
 
     outCorsHeader(req, res);
     var insToDb = req.body;
-    //console.log(req.body);
-
     /*
+    //console.log(req.body);
     var pictureToParse = insToDb.properties.picture.split(",")[1];
     var buf = new Buffer(pictureToParse, 'base64'); // Ta-da
     fs.writeFile("/Users/ddrmanxbxfr/test.jpeg", buf, function (err) {
@@ -166,6 +165,33 @@ app.post('/api/iwashere', function (req, res) {
     });
 });
 
+
+
+/**
+ * @api {get} /api/iwashere/picture/:id Obtenir une photo selon son mongoID
+ * @apiName GetPicture
+ * @apiGroup I Was Here
+ *
+ * @apiParam {Number} id Identifiant unique present dans GridFS MongoDB.
+ *
+ * @apiSuccess {Jpeg/Base64} photo Photo en format jpeg/base64 !
+ *
+ *
+ */
+app.get('/api/iwashere/picture/:id', function (request, response) {
+    outCorsHeader(request, response);
+    var dataToSend;
+    console.log('trying for ' + request.params.id);
+    var gridTest = new Grid(dbPictures, 'fs');
+    var idToLook = new ObjectID(request.params.id);
+    gridTest.get(idToLook, function (err, data) {
+        if (!err) {
+        response.send(data);
+        } else {
+            response.send("{status: \'fetch failed\'}");
+        }
+    });
+});
 
 /**
  * @api {get} /api/iwashere/:radius/:lat/:lng Obtenir les document selon le périmètre
