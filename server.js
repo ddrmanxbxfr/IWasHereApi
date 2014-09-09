@@ -162,7 +162,6 @@ app.post('/api/iwashere/picture/:lat/:lng', function (req, res) {
                 }
             )
         });
-        gridStore.close();
     res.send('{"status": "Insert done"}');
 });
 
