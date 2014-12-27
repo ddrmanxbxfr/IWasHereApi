@@ -6,9 +6,11 @@
     "crypto": ">0.0.1",
     "express": "~3.1.0",
     "faye": ">0.0.1",
+    "gm": "^1.16.0",
     "jwt-simple": ">0.0.1",
     "mongodb": "^1.4.10",
-    "nano": ">0.0.1"
+    "nano": ">0.0.1",
+    "streamifier": "^0.1.0"
   },
   "devDependencies": {
     "should": "^4.0.4",

@@ -4,6 +4,7 @@
 var geojson = require('./lib/geojson.js');
 var fs = require('fs');
 var application_root = __dirname,
+    gm = require('gm'), // Pour les images...
     express = require('express'); //Web framework
 
 var nano = require('nano')('http://localhost:5984');
@@ -137,6 +138,16 @@ app.post('/api/iwashere', function (req, res) {
         return fileId;
     };
 
+    function generateThumbnailToMongoDB(b64picture) {
+        var buf = new Buffer(b64picture.split(",")[1], 'base64'); // Picture to generate a thumbnail !
+        gm(buf,'jsonImg.jpg')
+            .resize(100, 100)
+            .toBuffer('JPEG', function (err, buffer) {
+                if (err) return handle(err);
+                console.log('done encoding the picture !!!!');
+            })
+    }
+
     outCorsHeader(req, res);
     var insToDb = req.body;
     /*
@@ -152,6 +163,7 @@ app.post('/api/iwashere', function (req, res) {
     });*/
     if (insToDb.properties.picture !== undefined && insToDb.properties.picture !== null) {
         var mongoId = savePictureToMongoDB(insToDb.properties.picture);
+        v
         delete insToDb.properties.picture;
         insToDb.properties.pictureid = mongoId;
     }
@@ -186,7 +198,7 @@ app.get('/api/iwashere/picture/:id', function (request, response) {
     var idToLook = new ObjectID(request.params.id);
     gridTest.get(idToLook, function (err, data) {
         if (!err) {
-        response.send(data);
+            response.send(data);
         } else {
             response.send("{status: \'fetch failed\'}");
         }
